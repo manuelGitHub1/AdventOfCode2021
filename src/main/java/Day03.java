@@ -10,7 +10,7 @@ public class Day03 extends EveryDay {
 
    public static void main( String[] args ) {
       Day03 day = new Day03();
-      day.testInput = false;
+//      day.testInput = false;
       day.firstPart();
       day.secondPart();
    }

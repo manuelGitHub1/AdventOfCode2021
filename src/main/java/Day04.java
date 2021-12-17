@@ -5,6 +5,8 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.jetbrains.annotations.NotNull;
+
 
 // --- Day 4: Giant Squid ---
 public class Day04 extends EveryDay {
@@ -24,20 +26,26 @@ public class Day04 extends EveryDay {
       final String drawnNumbers = input.get(0);
       input.remove(0);
 
+      final List<BingoBoard> bingoFields = getBingoFields(input);
+      lookupForFirstBingo(bingoFields, drawnNumbers);
+   }
+
+   @NotNull
+   private List<BingoBoard> getBingoFields( List<String> input ) {
       int rowCounter = 0;
-      final List<BingoField> bingoFields = new ArrayList<>();
-      BingoField bingoField = null;
+      final List<BingoBoard> bingoFields = new ArrayList<>();
+      BingoBoard bingoField = null;
       for ( String string : input ) {
          if ( string.isBlank() ) {
             if ( bingoField != null ) {
                bingoFields.add(bingoField);
             }
-            bingoField = new BingoField();
+            bingoField = new BingoBoard();
             continue;
          }
          rowCounter++;
 
-         Scanner scanner = new Scanner(string);
+         final Scanner scanner = new Scanner(string);
          int columnCounter = 0;
          while ( scanner.hasNext() ) {
             Field field = new Field();
@@ -53,20 +61,16 @@ public class Day04 extends EveryDay {
       if ( bingoField != null ) {
          bingoFields.add(bingoField);
       }
-      lookupForBingo(bingoFields, drawnNumbers);
-
+      return bingoFields;
    }
 
-   private void lookupForBingo( List<BingoField> bingoFields, String drawnNumbers ) {
+   private void lookupForFirstBingo( List<BingoBoard> bingoFields, String drawnNumbers ) {
       for ( final String drawnNumber : drawnNumbers.split(",") ) {
-         for ( BingoField field : bingoFields ) {
+         for ( BingoBoard field : bingoFields ) {
             if ( field.applyDrawAndLookForBingo(drawnNumber) ) {
                System.out.println("BINGO");
                System.out.println("WinnerNumber: " + drawnNumber);
-               AtomicInteger sum = new AtomicInteger(0);
-               for ( List<Field> fields : field.columns.values() ) {
-                  fields.stream().filter(f -> !f.marked).forEach(f -> sum.addAndGet(Integer.parseInt(f.value)));
-               }
+               final AtomicInteger sum = getSum(field);
                System.out.println("Sum of all unmarked fields: " + sum);
                System.out.println("FinalScore: " + Integer.parseInt(drawnNumber) * sum.intValue());
                return;
@@ -75,13 +79,52 @@ public class Day04 extends EveryDay {
       }
    }
 
-   private void secondPart() {
+   @NotNull
+   private AtomicInteger getSum( BingoBoard field ) {
+      final AtomicInteger sum = new AtomicInteger(0);
+      for ( List<Field> fields : field.columns.values() ) {
+         fields.stream().filter(f -> !f.marked).forEach(f -> sum.addAndGet(Integer.parseInt(f.value)));
+      }
+      return sum;
    }
 
-   private static class BingoField {
+   private void lookupForLastBingo( List<BingoBoard> bingoBoards, String drawnNumbers ) {
+      List<BingoBoard> winnerBoards = new ArrayList<>();
+      String lastWinnerNumber = null;
+      for ( final String drawnNumber : drawnNumbers.split(",") ) {
+         for ( BingoBoard board : bingoBoards ) {
+            if ( board.isWon ){
+               continue;
+            }
+            if ( board.applyDrawAndLookForBingo(drawnNumber) ) {
+               board.isWon = true;
+               winnerBoards.add(board);
+               lastWinnerNumber = drawnNumber;
+            }
+         }
+      }
+      final BingoBoard lastWinnerBoard = winnerBoards.get(winnerBoards.size() - 1);
+      System.out.println("Last Winner Number: " + lastWinnerNumber);
+      System.out.println(lastWinnerBoard);
+      final AtomicInteger sum = getSum(lastWinnerBoard);
+      System.out.println("Sum of all unmarked fields: " + sum);
+      System.out.println("FinalScore: " + Integer.parseInt(lastWinnerNumber) * sum.intValue());
+   }
+
+   private void secondPart() {
+      final List<String> input = input();
+      final String drawnNumbers = input.get(0);
+      input.remove(0);
+
+      final List<BingoBoard> bingoFields = getBingoFields(input);
+      lookupForLastBingo(bingoFields, drawnNumbers);
+   }
+
+   private static class BingoBoard {
 
       Map<Integer, List<Field>> rows    = new HashMap<>();
       Map<Integer, List<Field>> columns = new HashMap<>();
+      boolean isWon = false;
 
       @Override
       public String toString() {
@@ -127,7 +170,7 @@ public class Day04 extends EveryDay {
 
       @Override
       public String toString() {
-         return value;
+         return value + (marked ? "x" : "");
       }
    }
 

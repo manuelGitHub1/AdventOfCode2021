@@ -3,6 +3,8 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
+import util.Util;
+
 
 // --- Day 1: Sonar Sweep ---
 public class Day01 {
@@ -12,7 +14,7 @@ public class Day01 {
       System.out.println("Hello World");
       firstPart();
 
-//      secondPart(Util.getAoCTestInputAsInts(Day01.class.getName()));
+//      secondPart(util.Util.getAoCTestInputAsInts(Day01.class.getName()));
       secondPart(Util.getAoCInputAsInts(Day01.class.getName()));
    }
 

@@ -1,10 +1,12 @@
 import java.util.List;
 
+import util.Util;
+
 
 public class Day02_2nd {
 
    public static void main( String[] args ) {
-//      secondPart(Util.getAoCTestInput("Day02"));
+//      secondPart(util.Util.getAoCTestInput("Day02"));
       secondPart(Util.getAoCInput("Day02"));
    }
 
